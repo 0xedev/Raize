@@ -1,18 +1,18 @@
 {
   "accountAssociation": {
-    "header": "eyJmaWQiOjEwNDI1MjIsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhjRjlCNjczZTM3NmM2ZGQwMDliNDNlQzc2MTM5YUVhYmRBMDJCNjRlIn0",
-    "payload": "eyJkb21haW4iOiJyYWl6ZS01Lm5ldGxpZnkuYXBwIn0",
-    "signature": "MHgyNGE2OTYzOWU2OWYxZjY3MjI2MTcyYTQ3NjE2YmRlMjkyOTkxMDFiNGIzYjc5NzkwNGI4Njc0NDEzNmM0Y2E0MTViN2M4YzhiOWY0MDQxNGZkYmY2MWMxN2M5YmQxZWI3MjZiOWQyYjM5NjEzMGVjY2YyYzkyMjY5MDA4ZDU2ODFj"
+    "header": "eyJmaWQiOjIzOTM5NiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDRENEU1MjIzODRkNkYxMDkwYkZENEM0NTI3YTdkNTJERmQyMGJDYTMifQ",
+    "payload": "eyJkb21haW4iOiJyYWl6ZS10YXVwZS52ZXJjZWwuYXBwIn0",
+    "signature": "MHhmM2RkMTc3NzdiMGJkNzAwZTMzYTE4ODJlNzQ0ZThlMGNiNjIxOTYwMmQ0OGI3NmMzMjA5OThkZGE1YThjOGRkMTVkYTgzOTM5ZTM0NjcxZTg2YTQ4NGI5YTk2ODZiZTI2ZjI1Y2M2ZjJlYjQ5MGU1MmQ4ZTAzOGVlODZjY2IxMDFj"
   },
   "frame": {
     "version": "1",
-    "name": "Raize",
-    "iconUrl": "https://raize-5.netlify.app/logo.png",
-    "homeUrl": "https://raize-5.netlify.app",
-    "imageUrl": "https://raize-5.netlify.app/logo.png",
+    "name": "Example Frame",
+    "iconUrl": "https://raize-taupe.vercel.app/logo.png",
+    "homeUrl": "https://raize-taupe.vercel.app",
+    "imageUrl": "https://raize-taupe.vercel.app/logo.png",
     "buttonTitle": "Check this out",
-    "splashImageUrl": "https://raize-5.netlify.app/logo.png",
-    "splashBackgroundColor": "#ffffff",
+    "splashImageUrl": "https://raize-taupe.vercel.app/logo.png",
+    "splashBackgroundColor": "#fffff",
     "webhookUrl": "https://api.neynar.com/f/app/77af59ea-8cfa-48b1-a199-6b0eec64fddb/event",
     "subtitle": "Presales",
     "description": "Become early adopters of the next big thing in crypto. Raize is a platform for presales.",
@@ -21,7 +21,7 @@
     "tagline": "Explore presales with Raize!",
     "ogTitle": "Raize",
     "ogDescription": "Become early adopters of the next big thing in crypto.",
-    "ogImage": "https://raize-5.netlify.app/logo.png",
+    "ogImage": "https://raize-taupe.vercel.app/logo.png",
     "noindex": false,
     "permissions": ["cast:read"],
     "notifications": {
