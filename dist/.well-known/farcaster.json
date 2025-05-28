@@ -7,12 +7,32 @@
   "frame": {
     "version": "1",
     "name": "Raize",
-    "iconUrl": "https://raize-5.netlify.app/icon.png",
+    "iconUrl": "https://raize-5.netlify.app/logo.png",
     "homeUrl": "https://raize-5.netlify.app",
-    "imageUrl": "https://raize-5.netlify.app/image.png",
+    "imageUrl": "https://raize-5.netlify.app/logo.png",
     "buttonTitle": "Check this out",
-    "splashImageUrl": "https://raize-5.netlify.app/splash.png",
-    "splashBackgroundColor": "#1f2937",
-    "webhookUrl": "https://api.neynar.com/f/app/77af59ea-8cfa-48b1-a199-6b0eec64fddb/event"
+    "splashImageUrl": "https://raize-5.netlify.app/logo.png",
+    "splashBackgroundColor": "#ffffff",
+    "webhookUrl": "https://api.neynar.com/f/app/77af59ea-8cfa-48b1-a199-6b0eec64fddb/event",
+    "subtitle": "Presales",
+    "description": "Become early adopters of the next big thing in crypto. Raize is a platform for presales.",
+    "primaryCategory": "games",
+    "tags": ["presales", "funding", "creator", "pinksales", "farcaster"],
+    "tagline": "Explore presales with Raize!",
+    "ogTitle": "Raize",
+    "ogDescription": "Become early adopters of the next big thing in crypto.",
+    "ogImage": "https://raize-5.netlify.app/logo.png",
+    "noindex": false,
+    "permissions": ["cast:read"],
+    "notifications": {
+      "enabled": true,
+      "categories": [
+        {
+          "id": "welcome",
+          "name": "Welcome Messages"
+        }
+      ]
+    },
+    "author": "Raize Team"
   }
 }
