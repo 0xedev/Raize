@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  ChangeEvent,
-  FormEvent,
-} from "react";
+import React, { useState, useEffect, useCallback, ChangeEvent } from "react";
 import {
   useAccount,
   useConnect,
@@ -16,7 +10,7 @@ import { parseEther, parseUnits, isAddress, zeroAddress, zeroHash } from "viem";
 import { createClient } from "@supabase/supabase-js";
 import { sepolia } from "viem/chains";
 import { createConfig, http } from "@wagmi/core";
-import { getAccount, getPublicClient, getWalletClient } from "@wagmi/core";
+import { getPublicClient } from "@wagmi/core";
 
 // Supabase client setup (replace with your Supabase URL and anon key)
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -787,7 +781,7 @@ const CreatePresalePage: React.FC = () => {
 
       setStatus("Sending transaction to create presale...");
       try {
-        const walletClient = await getWalletClient(config);
+        // const walletClient = await getWalletClient(config);
         const gasEstimate = await publicClient.estimateContractGas({
           address: FACTORY_ADDRESS as `0x${string}`,
           abi: factoryAbi,
