@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { type BadgeProps } from "@/components/ui/badge";
+import { formatUnits } from "viem";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -48,5 +49,23 @@ export const getInitials = (name: string | undefined | null): string => {
         return name.toUpperCase();
     }
     return "?";
+};
+
+export const formatTokenAmount = (amount: bigint | undefined, decimals: number | undefined, symbol: string | undefined): string => {
+    if (amount === undefined) return "N/A";
+    if (decimals === undefined) return `${amount.toString()} raw units`;
+    
+    try {
+        const formatted = formatUnits(amount, decimals);
+        // Remove trailing zeros after decimal point
+        const cleanFormatted = formatted.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+        return symbol ? `${cleanFormatted} ${symbol}` : cleanFormatted;
+    } catch (e) {
+        return `${amount.toString()} raw units`;
+    }
+};
+
+export const formatCurrencyDisplay = (amount: bigint | undefined, decimals: number | undefined, symbol: string | undefined): string => {
+    return formatTokenAmount(amount, decimals, symbol);
 };
 
