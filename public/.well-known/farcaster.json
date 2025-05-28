@@ -12,7 +12,7 @@
     "imageUrl": "https://raize-taupe.vercel.app/logo.png",
     "buttonTitle": "Check this out",
     "splashImageUrl": "https://raize-taupe.vercel.app/logo.png",
-    "splashBackgroundColor": "#1f2937"
+    "splashBackgroundColor": "#1f2937",
     "webhookUrl": "https://api.neynar.com/f/app/77af59ea-8cfa-48b1-a199-6b0eec64fddb/event",
     "subtitle": "Presales",
     "description": "Become early adopters of the next big thing in crypto. Raize is a platform for presales.",
