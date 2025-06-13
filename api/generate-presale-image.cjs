@@ -196,7 +196,7 @@ module.exports = async (req, res) => {
       abi: PRESALE_ABI,
       functionName: "getContributors",
     });
-    const selectedContributorAddresses = contributorAddresses.slice(0, 3); // First 3 for now
+    const selectedContributorAddresses = contributorAddresses.slice(0, 10); // First 9 for now
     const contributorProfilesData = await fetchFarcasterProfilesByAddresses(
       selectedContributorAddresses
     );
@@ -239,7 +239,7 @@ module.exports = async (req, res) => {
     // Generate SVG with Satori
     const satoriElementTree = satoriHtml(html);
     const svg = await satori(satoriElementTree, {
-      width: 1200,
+      width: 1080,
       height: 630,
       fonts: [
         {
