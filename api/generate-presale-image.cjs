@@ -196,7 +196,7 @@ module.exports = async (req, res) => {
       abi: PRESALE_ABI,
       functionName: "getContributors",
     });
-    const selectedContributorAddresses = contributorAddresses.slice(0, 10); // First 9 for now
+    const selectedContributorAddresses = contributorAddresses.slice(0, 30); // First 30 for now
     const contributorProfilesData = await fetchFarcasterProfilesByAddresses(
       selectedContributorAddresses
     );
@@ -214,7 +214,7 @@ module.exports = async (req, res) => {
       creatorUsername: creatorProfile.username,
       creatorPfpUrl: creatorProfile.pfpUrl,
       tokenSymbol,
-      progressPercent: Math.min(100, progressPercent), // Cap at 100%
+      progressPercent: Math.min(100, progressPercent),
       totalRaisedFormatted: parseFloat(
         formatUnits(totalRaised, currencyDecimals)
       ).toFixed(2),

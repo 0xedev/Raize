@@ -233,6 +233,157 @@ const StyledBadge = ({
   );
 };
 
+// New Timeline Display Component
+const TimelineDisplay = ({
+  // timestamp,
+  // label,
+  onEnd,
+  startTime,
+  endTime,
+  claimDeadline,
+  presaleState, // raw state from contract
+}: {
+  timestamp?: bigint | undefined; // Kept for potential direct use, but mostly derived internally
+  label?: string; // Kept for potential direct use, but mostly derived internally
+  onEnd: () => void; // Callback when a phase ends to refetch data
+  startTime: bigint | undefined;
+  endTime: bigint | undefined;
+  claimDeadline: bigint | undefined;
+  presaleState: number | undefined;
+}) => {
+  const [activeTimestamp, setActiveTimestamp] = useState<bigint | undefined>();
+  const [activeLabel, setActiveLabel] = useState<string>("");
+  const [finalMessage, setFinalMessage] = useState<string | null>(null);
+  const [timeLeftParts, setTimeLeftParts] = useState<{
+    d: number;
+    h: number;
+    m: number;
+    s: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const now = Math.floor(Date.now() / 1000);
+    let newActiveTimestamp: bigint | undefined = undefined;
+    let newActiveLabel: string = "";
+    let newFinalMessage: string | null = null;
+
+    if (startTime && now < Number(startTime)) {
+      newActiveTimestamp = startTime;
+      newActiveLabel = "Presale Starts In";
+    } else if (
+      endTime &&
+      now < Number(endTime) &&
+      (presaleState === 0 || presaleState === 1)
+    ) {
+      newActiveTimestamp = endTime;
+      newActiveLabel = "Presale Ends In";
+    } else if (
+      claimDeadline &&
+      now < Number(claimDeadline) &&
+      (presaleState === 2 || presaleState === 3)
+    ) {
+      newActiveTimestamp = claimDeadline;
+      newActiveLabel =
+        presaleState === 2 ? "Refund Period Ends In" : "Claim Period Ends In";
+    } else {
+      if (presaleState === 1 && endTime && now >= Number(endTime)) {
+        newFinalMessage = "Presale Ended";
+      } else if (presaleState === 2) {
+        newFinalMessage =
+          claimDeadline && now < Number(claimDeadline)
+            ? "Refund Period Active"
+            : "Presale Failed";
+      } else if (presaleState === 3) {
+        newFinalMessage =
+          claimDeadline && now < Number(claimDeadline)
+            ? "Claim Period Active"
+            : "Presale Succeeded";
+      } else if (presaleState === 4) {
+        newFinalMessage = "Presale Canceled";
+      } else {
+        newFinalMessage = "Timeline Concluded";
+      }
+    }
+
+    setActiveTimestamp(newActiveTimestamp);
+    setActiveLabel(newActiveLabel);
+    setFinalMessage(newFinalMessage);
+  }, [startTime, endTime, claimDeadline, presaleState, onEnd]);
+
+  useEffect(() => {
+    if (!activeTimestamp) {
+      setTimeLeftParts(null);
+      return;
+    }
+
+    const calculateTimeLeft = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const targetTime = Number(activeTimestamp);
+      const difference = targetTime - now;
+
+      if (difference <= 0) {
+        setTimeLeftParts({ d: 0, h: 0, m: 0, s: 0 });
+        if (onEnd) onEnd(); // Trigger refetch, which re-runs the effect above
+        return false; // Indicates timer ended
+      }
+
+      const d = Math.floor(difference / (3600 * 24));
+      const h = Math.floor((difference % (3600 * 24)) / 3600);
+      const m = Math.floor((difference % 3600) / 60);
+      const s = Math.floor(difference % 60);
+      setTimeLeftParts({ d, h, m, s });
+      return true; // Indicates timer is still running
+    };
+
+    if (!calculateTimeLeft()) return; // Initial check, if already ended, don't start interval
+
+    const intervalId = setInterval(() => {
+      if (!calculateTimeLeft()) {
+        clearInterval(intervalId);
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [activeTimestamp, onEnd]);
+
+  if (finalMessage) {
+    return (
+      <div className="text-center py-4">
+        <p className="text-lg font-semibold text-primary-900">{finalMessage}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-center py-2">
+      <p className="text-md font-medium text-primary-800 mb-3">
+        {activeLabel || "Loading..."}
+      </p>
+      {timeLeftParts ? (
+        <div className="flex justify-center space-x-2 sm:space-x-3">
+          {Object.entries(timeLeftParts).map(([unit, value]) => (
+            <div
+              key={unit}
+              className="flex flex-col items-center p-2 bg-primary-100 rounded-md shadow"
+            >
+              <span className="text-2xl sm:text-3xl font-bold text-primary-900 tabular-nums">
+                {value.toString().padStart(2, "0")}
+              </span>
+              <span className="text-xs uppercase text-primary-700 tracking-wider">
+                {unit}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-lg font-semibold text-primary-900">
+          {activeLabel ? "Calculating..." : "Loading timeline..."}
+        </p>
+      )}
+    </div>
+  );
+};
+
 const PresaleDetailPage = () => {
   const { address: presaleAddressParam } = useParams<{ address: string }>();
   const presaleAddress = presaleAddressParam as Address | undefined;
@@ -300,6 +451,12 @@ const PresaleDetailPage = () => {
         functionName: "userClaimedAmount",
         args: [userAddress],
       });
+      baseContracts.push({
+        // Add call for userTokens
+        ...presaleContractConfig,
+        functionName: "userTokens",
+        args: [userAddress],
+      });
     }
     return baseContracts;
   }, [presaleAddress, userAddress]);
@@ -329,6 +486,7 @@ const PresaleDetailPage = () => {
     userContribution,
     userClaimableTokens,
     userClaimedAmount, // Added userClaimedAmount
+    userTotalEntitledTokens, // Added for total user tokens
   ] = useMemo(() => {
     return (
       presaleData?.map((d) => d.result) ??
@@ -347,6 +505,17 @@ const PresaleDetailPage = () => {
       functionName: "symbol",
       query: { enabled: !!tokenAddress },
     });
+
+  // Fetch decimals for the presale token
+  const {
+    data: presaleTokenDecimalsData,
+    isLoading: isLoadingPresaleTokenDecimals,
+  } = useReadContract({
+    address: tokenAddress,
+    abi: erc20Abi,
+    functionName: "decimals",
+    query: { enabled: !!tokenAddress },
+  });
 
   const currencyAddress = options?.[15] as Address | undefined;
   const currencyIsEth = currencyAddress === zeroAddress;
@@ -419,9 +588,18 @@ const PresaleDetailPage = () => {
       ? formatUnits(userContribution as bigint, currencyDecimals)
       : "0";
   const userClaimableTokensFormatted =
-    userClaimableTokens !== undefined
-      ? formatUnits(userClaimableTokens as bigint, 18) // Assuming presale token is 18 decimals
-      : " ";
+    userClaimableTokens !== undefined && presaleTokenDecimalsData !== undefined
+      ? formatUnits(
+          userClaimableTokens as bigint,
+          Number(presaleTokenDecimalsData)
+        )
+      : "N/A";
+  const presaleTokenDecimals =
+    (presaleTokenDecimalsData as number | undefined) ?? 18;
+  const userTotalEntitledTokensFormatted =
+    userTotalEntitledTokens !== undefined
+      ? formatUnits(userTotalEntitledTokens as bigint, presaleTokenDecimals)
+      : "N/A";
   const currencyDisplaySymbol = currencyIsEth
     ? "ETH"
     : currencySymbol ?? "Tokens";
@@ -800,6 +978,7 @@ const PresaleDetailPage = () => {
     isLoadingCurrencySymbol ||
     isLoadingCurrencyDecimals ||
     isLoadingAllowance ||
+    isLoadingPresaleTokenDecimals ||
     isRefetching;
   const isActionInProgress = isWritePending || isConfirming || isApproving;
 
@@ -1088,6 +1267,12 @@ const PresaleDetailPage = () => {
                   {userClaimableTokensFormatted} {tokenSymbol || "Tokens"}
                 </span>
               </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                You will receive:{" "}
+                <span className="font-semibold text-foreground">
+                  {userTotalEntitledTokensFormatted} {tokenSymbol || "Tokens"}
+                </span>
+              </p>
               {/* Optionally show if already claimed/refunded */}
               {hasAlreadyClaimedOrRefunded && (
                 <p className="text-sm text-yellow-600 mt-1">
@@ -1128,30 +1313,13 @@ const PresaleDetailPage = () => {
               <div className="text-primary-900 font-medium mb-2 flex items-center">
                 <Calendar className="h-4 w-4 mr-2" /> Timeline
               </div>
-              <div className="text-sm text-muted-foreground">
-                Start:{" "}
-                <span className="font-semibold text-foreground">
-                  {startTime
-                    ? new Date(Number(startTime) * 1000).toLocaleString()
-                    : "N/A"}
-                </span>
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                End:{" "}
-                <span className="font-semibold text-foreground">
-                  {endTime
-                    ? new Date(Number(endTime) * 1000).toLocaleString()
-                    : "N/A"}
-                </span>
-              </div>
-              {claimDeadline && (
-                <div className="text-sm text-muted-foreground mt-1">
-                  Claim Deadline:{" "}
-                  <span className="font-semibold text-foreground">
-                    {new Date(Number(claimDeadline) * 1000).toLocaleString()}
-                  </span>
-                </div>
-              )}
+              <TimelineDisplay
+                startTime={startTime}
+                endTime={endTime}
+                claimDeadline={claimDeadline}
+                presaleState={state}
+                onEnd={refetchPresaleData}
+              />
             </div>
             <div className="bg-primary-50 rounded-lg p-4 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-200">
               <div className="pt-6 border-t border-primary-100/20">
