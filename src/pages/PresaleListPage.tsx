@@ -200,7 +200,7 @@ const PresaleListPage = () => {
     return presalesWithDetails.filter((presale) => {
       const statusObject = getPresaleStatus(presale.state, presale.options);
       const matchesStatus =
-        filterStatus === "all" ||
+        filterStatus === "active" ||
         statusObject.text.toLowerCase().includes(filterStatus.toLowerCase());
       const matchesSearch =
         searchTerm === "" ||
