@@ -7,6 +7,8 @@ import {
   useWaitForTransactionReceipt,
   useEstimateGas,
   useFeeData,
+  useChainId, // Added
+  useSwitchChain, // Added
 } from "wagmi";
 import PresaleJson from "@/abis/Presale.json";
 import { type Abi, erc20Abi } from "viem";
@@ -20,6 +22,7 @@ import {
   type Address,
   encodeFunctionData,
 } from "viem";
+import { base } from "viem/chains"; // Added
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +59,7 @@ import {
 import { FarcasterProfileDisplay } from "@/components/FarcasterProfileDisplay";
 
 const presaleAbi = PresaleJson.abi as Abi;
+const BASE_MAINNET_CHAIN_ID = base.id;
 
 // Custom theme colors
 const themeColors = {
@@ -400,6 +404,8 @@ const PresaleDetailPage = () => {
     data: receipt,
   } = useWaitForTransactionReceipt({ hash });
   const { data: feeData } = useFeeData();
+  const chainId = useChainId(); // Added
+  const { switchChainAsync } = useSwitchChain(); // Added
 
   const [contributionAmount, setContributionAmount] = useState("");
   const [merkleProofInput, setMerkleProofInput] = useState("");
@@ -765,6 +771,28 @@ const PresaleDetailPage = () => {
     resetWriteContract,
   ]);
 
+  // --- Network Check and Switch ---
+  const ensureCorrectNetwork = async (): Promise<boolean> => {
+    if (chainId !== BASE_MAINNET_CHAIN_ID) {
+      toast.error("Wrong Network", {
+        description: "Please switch to Base Mainnet to proceed.",
+        icon: <AlertTriangle className="h-5 w-5 text-red-500" />,
+      });
+      if (switchChainAsync) {
+        try {
+          await switchChainAsync({ chainId: BASE_MAINNET_CHAIN_ID });
+          return true; // Switched successfully
+        } catch (switchError) {
+          toast.error("Failed to Switch Network", {
+            description: "Please switch manually in your wallet.",
+          });
+          return false; // Failed to switch
+        }
+      }
+      return false; // No switchChainAsync or already on wrong network
+    }
+    return true; // Already on correct network
+  };
   // --- Action Handlers ---
   const handleApprove = async () => {
     if (
@@ -774,6 +802,12 @@ const PresaleDetailPage = () => {
       !currencyAddress
     )
       return;
+
+    if (!(await ensureCorrectNetwork())) {
+      setIsApproving(false); // Reset approving state if network switch fails or is needed
+      return;
+    }
+
     setActionError("");
     setIsApproving(true);
     setCurrentAction("approve");
@@ -804,6 +838,10 @@ const PresaleDetailPage = () => {
       !presaleContractConfig.address
     )
       return;
+
+    if (!(await ensureCorrectNetwork())) {
+      return;
+    }
 
     // --- Min/Max contribution check ---
     if (minContrib && contributionAmountParsed < minContrib) {
@@ -865,6 +903,11 @@ const PresaleDetailPage = () => {
 
   const handleClaimOrRefund = async (actionType: "claim" | "refund") => {
     if (!presaleContractConfig.address) return;
+
+    if (!(await ensureCorrectNetwork())) {
+      return;
+    }
+
     setActionError("");
     setCurrentAction(actionType);
     try {
