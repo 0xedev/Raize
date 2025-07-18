@@ -29,7 +29,7 @@ function getPresaleImageHtml(data) {
   // Tailwind-like classes will be processed by Satori's Yoga layout engine.
   // Ensure fonts are loaded in the Satori options.
   return `
-    <div style="display: flex; align-items: center; justify-content: center; width: 1080px; height: 630px; background-color: #134942; color: white; padding: 40px; font-family: 'Inter', sans-serif; border: 2px solid #1A5A52; border-radius: 10px;">
+    <div style="display: flex; align-items: center; justify-content: center; width: 900px; height: 600px; background-color: #134942; color: white; padding: 40px; font-family: 'Inter', sans-serif; border: 2px solid #1A5A52; border-radius: 10px;">
       <div style="display: flex; flex-direction: column; width: 100%; height: 100%;">
         <!-- Header: Creator Info & Token -->
         <div style="display: flex; align-items: center; margin-bottom: 30px;">
