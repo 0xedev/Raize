@@ -62,7 +62,7 @@ function getPresaleImageHtml(data) {
             ${
               contributors.length > 0
                 ? contributors
-                    .slice(0, 7) // Show max 7 contributors
+                    .slice(0, 20) // Show max 7 contributors
                     .map(
                       (c) => `
               <div style="display: flex; align-items: center; background-color: #1A5A52; padding: 8px 12px; border-radius: 20px;">
