@@ -239,8 +239,8 @@ module.exports = async (req, res) => {
     // Generate SVG with Satori
     const satoriElementTree = satoriHtml(html);
     const svg = await satori(satoriElementTree, {
-      width: 1080,
-      height: 630,
+      width: 900,
+      height: 600,
       fonts: [
         {
           name: "Inter",
