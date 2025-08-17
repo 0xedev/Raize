@@ -34,5 +34,8 @@
       ]
     },
     "author": "Raize Team"
+  },
+"baseBuilder": {
+    "allowedAddresses": ["0x02a9093dEB73E9E524657492429377117C70e097"]
   }
 }
